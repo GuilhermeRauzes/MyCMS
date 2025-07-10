@@ -1,0 +1,25 @@
+# Node modules
+/backend/node_modules
+/frontend/node_modules
+
+# Environment variables
+/backend/.env
+/frontend/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build artifacts (for frontend)
+/frontend/build
+/frontend/dist
+
+# Other common IDE files
+.vscode/
+.idea/
