@@ -1,9 +1,12 @@
-require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
+require('dotenv').config();
 
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 5000; // Define a porta, pegando do .env ou usando 5000 como padrão
-const mongoose = require('mongoose'); // Já importamos o mongoose no topo, então não precisa de outro 'require'
+const PORT = process.env.PORT || 5000;
+const mongoose = require('mongoose');
+
+// Importa as rotas de autenticação (NOVA LINHA)
+const authRoutes = require('./routes/authRoutes');
 
 // Função para conectar ao MongoDB
 const connectDB = async () => {
@@ -12,7 +15,7 @@ const connectDB = async () => {
         console.log(`MongoDB Conectado: ${conn.connection.host}`);
     } catch (error) {
         console.error(`Erro ao conectar ao MongoDB: ${error.message}`);
-        process.exit(1); // Sai do processo com falha
+        process.exit(1);
     }
 };
 
@@ -22,7 +25,10 @@ connectDB();
 // Middleware para parsear JSON no corpo das requisições
 app.use(express.json());
 
-// Rota de teste simples
+// Rotas da API (NOVA SEÇÃO)
+app.use('/api/auth', authRoutes); // Usa as rotas de autenticação
+
+// Rota de teste simples (OPCIONALMENTE REMOVER OU COMENTAR)
 app.get('/', (req, res) => {
     res.send('API do CMS está funcionando!');
 });
