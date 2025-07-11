@@ -9,7 +9,7 @@ function PostsPage() {
   const [success, setSuccess] = useState(null);
 
   const adminToken =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzA0YjNkY2FmMTVkMDBlYzUyNzhkYiIsImlhdCI6MTc1MjE5MDQ5MSwiZXhwIjoxNzU0NzgyNDkxfQ.1iTqkZTMhO72qDgR-aqEclBO-adSbIqPt_4VHtgwDFM";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzA0YjNkY2FmMTVkMDBlYzUyNzhkYiIsImlhdCI6MTc1MjE5MDQ5MSwiZXhwIjoxNzU0NzgyNDkxfQ.1iTqkZTMhO72qDgR-aqEclBO-adSbIqPt_4VHtgwDFM";
   // Função para buscar os posts do backend
   useEffect(() => {
     const fetchPosts = async () => {
@@ -142,6 +142,13 @@ function PostsPage() {
                 key={post._id}
                 className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200"
               >
+                {post.thumbnail && ( // Renderiza a imagem APENAS se houver um caminho de thumbnail
+                  <img
+                    src={`http://localhost:5000${post.thumbnail}`} // <-- URL COMPLETA para o servidor de backend
+                    alt={post.title}
+                    className="w-full h-40 object-cover rounded-md mb-4" // Tailwind CSS para estilo
+                  />
+                )}
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
                   {post.title}
                 </h2>
