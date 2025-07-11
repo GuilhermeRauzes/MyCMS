@@ -5,8 +5,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const mongoose = require('mongoose');
 
-// Importa as rotas de autenticação (NOVA LINHA)
-const authRoutes = require('./routes/authRoutes');
+// Rotas
+const authRoutes = require('./routes/authRoutes'); // Importa as rotas de autenticação
+const postRoutes = require('./routes/postRoutes'); // Importa as rotas de posts
 
 // Função para conectar ao MongoDB
 const connectDB = async () => {
@@ -25,8 +26,9 @@ connectDB();
 // Middleware para parsear JSON no corpo das requisições
 app.use(express.json());
 
-// Rotas da API (NOVA SEÇÃO)
+// Rotas da API (sempre fica com prefixo de /api/alguma coisa)
 app.use('/api/auth', authRoutes); // Usa as rotas de autenticação
+app.use('/api/posts', postRoutes); // Usa as rotas de posts
 
 // Rota de teste simples (OPCIONALMENTE REMOVER OU COMENTAR)
 app.get('/', (req, res) => {
