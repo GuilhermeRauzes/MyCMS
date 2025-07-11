@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 // Rotas
 const authRoutes = require('./routes/authRoutes'); // Importa as rotas de autenticação
@@ -26,14 +27,16 @@ connectDB();
 // Middleware para parsear JSON no corpo das requisições
 app.use(express.json());
 
+// CORS para todas as origens
+app.use(cors());
 // Rotas da API (sempre fica com prefixo de /api/alguma coisa)
 app.use('/api/auth', authRoutes); // Usa as rotas de autenticação
 app.use('/api/posts', postRoutes); // Usa as rotas de posts
 
-// Rota de teste simples (OPCIONALMENTE REMOVER OU COMENTAR)
-app.get('/', (req, res) => {
-    res.send('API do CMS está funcionando!');
-});
+// Rota de teste simples 
+//app.get('/', (req, res) => {
+//    res.send('API do CMS está funcionando!');
+//});
 
 // Inicia o servidor
 app.listen(PORT, () => {

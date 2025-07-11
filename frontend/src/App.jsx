@@ -1,10 +1,11 @@
-import React from 'react';
+//Imports
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
+import PostsPage from './pages/PostsPage'; 
 
-// Importe o CSS do Tailwind
-import './index.css'; 
+//CSS
+import './index.css';
 
 function App() {
   return (
@@ -12,8 +13,9 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* Futuras rotas aqui: /posts, /posts/new, /posts/:slug/edit, etc. */}
-        <Route path="/" element={<Dashboard />} /> {/* Redireciona a raiz para o dashboard por enquanto */}
+        <Route path="/posts" element={<PostsPage />} /> 
+        {/* Futuras rotas aqui: /posts/new, /posts/:slug/edit, etc. */}
+        <Route path="/" element={<Dashboard />} />
       </Routes>
     </Router>
   );
