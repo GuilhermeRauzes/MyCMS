@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import PostsPage from './pages/PostsPage'; 
 import CreatePostPage from './pages/CreatePostPage';
+import EditPostPage from './pages/EditPostPage';
 //CSS
 import './index.css';
 
@@ -12,10 +13,11 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
+        {/* Todas as rotas aqui.*/}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/posts" element={<PostsPage />} /> 
         <Route path="/posts/new" element={<CreatePostPage />} /> 
-        {/* Futuras rotas aqui: /posts/new, /posts/:slug/edit, etc. */}
+        <Route path="/posts/:slug/edit" element={<EditPostPage />} /> 
         <Route path="/" element={<Dashboard />} />
       </Routes>
     </Router>

@@ -1,37 +1,75 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Para redirecionar após a criação
-import { Editor } from '@tinymce/tinymce-react'; // Importa o componente do TinyMCE
+import { useNavigate, useParams } from 'react-router-dom';
+import { Editor } from '@tinymce/tinymce-react';
 
-function CreatePostPage() {
+function EditPostPage() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const [status, setStatus] = useState('draft'); // Padrão: rascunho
-  const [thumbnail, setThumbnail] = useState(''); // Para a URL da thumbnail (futuro upload)
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('draft');
+  const [thumbnail, setThumbnail] = useState('');
+  const [loading, setLoading] = useState(true); // Começa carregando
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const editorRef = useRef(null); // Ref para acessar o conteúdo do editor TinyMCE
-  const navigate = useNavigate(); // Hook para navegação programática
+  const editorRef = useRef(null);
+  const navigate = useNavigate();
+  const { slug } = useParams(); // Pega o slug da URL
 
-    //Token de admin novamente. No futuro, isso virá do contexto de autenticação.
+  // Tokens de admin novamente 
   const adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzA0YjNkY2FmMTVkMDBlYzUyNzhkYiIsImlhdCI6MTc1MjE5MDQ5MSwiZXhwIjoxNzU0NzgyNDkxfQ.1iTqkZTMhO72qDgR-aqEclBO-adSbIqPt_4VHtgwDFM"; // <-- COLOQUE SEU TOKEN DE ADMIN AQUI!
+  const tinyMCEApiKey = "sp841dmha93vmkkpx91wp2q5zr20sh03urviuwtwpm2reylw"; 
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`
+          }
+        };
+        const response = await axios.get(`http://localhost:5000/api/posts/${slug}`, config);
+        const post = response.data.data;
+
+        setTitle(post.title);
+        setCategory(post.category || '');
+        setStatus(post.status);
+        setThumbnail(post.thumbnail || '');
+        // Define o conteúdo do editor TinyMCE depois que ele estiver pronto
+        if (editorRef.current) {
+          editorRef.current.setContent(post.content);
+        } else {
+          // Se o editor ainda não está pronto, aguarda e tenta novamente
+          // (Isso é uma abordagem simples; em apps maiores, usaria um estado para o editor)
+          setTimeout(() => {
+            if (editorRef.current) editorRef.current.setContent(post.content);
+          }, 100);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Erro ao buscar post para edição:', err.response ? err.response.data : err.message);
+        setError('Erro ao carregar post para edição. Verifique o console.');
+        setLoading(false);
+      }
+    };
+    fetchPost();
+  }, [slug, adminToken]); // Dependências: slug e adminToken
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); // O loading agora é para o submit, não para o fetch inicial
     setError(null);
     setSuccess(null);
 
-    const content = editorRef.current ? editorRef.current.getContent() : ''; // Pega o conteúdo do TinyMCE
+    const content = editorRef.current ? editorRef.current.getContent() : '';
 
     const postData = {
       title,
       content,
       category,
       status,
-      thumbnail // Será preenchido quando o upload de imagem for implementado
+      thumbnail
     };
 
     try {
@@ -42,33 +80,33 @@ function CreatePostPage() {
         }
       };
 
-      const response = await axios.post('http://localhost:5000/api/posts', postData, config);
-      setSuccess('Post criado com sucesso!');
+      const response = await axios.put(`http://localhost:5000/api/posts/${slug}`, postData, config);
+      setSuccess('Post atualizado com sucesso!');
       setLoading(false);
-      // Opcional: Limpar formulário ou redirecionar
-      setTitle('');
-      setCategory('');
-      setStatus('draft');
-      setThumbnail('');
-      if (editorRef.current) {
-        editorRef.current.setContent(''); // Limpa o editor
-      }
-      // Redireciona para a lista de posts após 2 segundos
+      // Redireciona de volta para a lista de posts após 2 segundos
       setTimeout(() => {
         navigate('/posts');
       }, 2000);
 
     } catch (err) {
-      console.error('Erro ao criar post:', err.response ? err.response.data : err.message);
-      setError(err.response && err.response.data && err.response.data.message ? err.response.data.message : 'Erro ao criar post. Tente novamente.');
+      console.error('Erro ao atualizar post:', err.response ? err.response.data : err.message);
+      setError(err.response && err.response.data && err.response.data.message ? err.response.data.message : 'Erro ao atualizar post. Tente novamente.');
       setLoading(false);
     }
   };
 
+  if (loading && !title) { 
+    return <div className="text-center text-lg mt-8 text-gray-700">Carregando post para edição...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 text-lg mt-8">{error}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="container mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Criar Novo Post</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Editar Post: {title}</h1>
 
         {success && (
           <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
@@ -125,7 +163,7 @@ function CreatePostPage() {
             <label htmlFor="content" className="block text-lg font-medium text-gray-700 mb-1">Conteúdo</label>
             <Editor
               onInit={(evt, editor) => editorRef.current = editor}
-              apiKey="sp841dmha93vmkkpx91wp2q5zr20sh03urviuwtwpm2reylw" 
+              apiKey={tinyMCEApiKey} // Usando a variável da API Key
               init={{
                 height: 500,
                 menubar: false,
@@ -147,7 +185,7 @@ function CreatePostPage() {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
             disabled={loading}
           >
-            {loading ? 'Criando...' : 'Criar Post'}
+            {loading ? 'Atualizando...' : 'Atualizar Post'}
           </button>
         </form>
       </div>
@@ -155,4 +193,4 @@ function CreatePostPage() {
   );
 }
 
-export default CreatePostPage;
+export default EditPostPage;
